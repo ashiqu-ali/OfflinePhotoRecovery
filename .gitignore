@@ -1,0 +1,7 @@
+MacApp/.build/
+MacApp/build/
+MacApp/build-next/
+.DS_Store
+*.dmg
+__pycache__/
+*.pyc
