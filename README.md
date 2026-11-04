@@ -1,6 +1,5 @@
 # Offline Photo Finder
 
-[![CI](https://github.com/ashiqu-ali/OfflinePhotoRecovery/actions/workflows/ci.yml/badge.svg)](https://github.com/ashiqu-ali/OfflinePhotoRecovery/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A Mac app that finds photos and videos left on an iPhone, entirely offline. It talks to the
@@ -239,12 +238,12 @@ Tools/
     export_app_videos.py         full videos saved inside editor/Files apps
 notes/
   ARCHITECTURE_REVIEW.md       senior-architect review: algorithms, findings, roadmap
-.github/                       CI, issue and pull request templates, code owners
+.github/                       issue and pull request templates, code owners
 CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, CHANGELOG.md
 LICENSE, THIRD_PARTY_NOTICES.md
 ```
 
-Run every check, the same ones CI runs (no iPhone needed):
+Run every check locally (no iPhone needed):
 
 ```bash
 Tools/run_checks.sh
@@ -269,3 +268,14 @@ personal data anywhere), setup, and `Tools/run_checks.sh`. Everyone follows the
 [MIT](LICENSE). The app bundles libimobiledevice, libimobiledevice-glue, libusbmuxd, libplist
 (LGPL-2.1) and OpenSSL (Apache-2.0), each under its own license; see
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The build copies their license files into the app.
+
+## Support
+
+If this saved your photos and you'd like to say thanks, you can buy me a coffee. It's optional and
+always will be — the project is free and open source.
+
+<p align="center">
+  <a href="https://www.buymeacoffee.com/ashiqu.ali">
+    <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=ashiqu.ali&button_colour=FFDD00&font_colour=000000&font_family=Lato&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee"/>
+  </a>
+</p>

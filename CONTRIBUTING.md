@@ -32,7 +32,7 @@ brew install libimobiledevice
 
 ## Building and testing
 
-Run every automated check, the same ones CI runs, with one command:
+Run every automated check with one command:
 
 ```bash
 Tools/run_checks.sh

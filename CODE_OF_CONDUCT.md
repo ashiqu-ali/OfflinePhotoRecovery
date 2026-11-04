@@ -17,7 +17,7 @@ The full text linked above is what applies; this summary doesn't replace it.
 
 ## Reporting
 
-Report unacceptable behaviour privately to the maintainers at **ashiquali007@gmail.com**.
+Report unacceptable behaviour privately to the maintainers at **developer.ashiqu@gmail.com**.
 Reports are reviewed promptly and fairly, and the reporter's privacy is respected.
 
 ## Enforcement

@@ -19,7 +19,7 @@ recover something that isn't there.** A break in any of these is a security issu
 Please **don't open a public issue**. Instead, either:
 
 - use **Report a vulnerability** on the repository's **Security** tab, or
-- email **ashiquali007@gmail.com**.
+- email **developer.ashiqu@gmail.com**.
 
 Describe the problem, how to reproduce it, and its impact. **Never include real backups,
 photos, databases, names or device identifiers.** Reproduce with the generators in `Tools/`

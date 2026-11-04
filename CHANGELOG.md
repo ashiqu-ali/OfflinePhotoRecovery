@@ -20,7 +20,8 @@ All notable changes to this project are recorded here. The format follows
 - Choosing where backups and copies are saved, for example an external drive.
 - Recovery toolkit scripts for Notes, screenshots, videos and photo leftovers.
 - Open-source project files: MIT license, Contributor Covenant code of conduct, contributing
-  guide, security policy, issue and pull request templates, CI and `Tools/run_checks.sh`.
+  guide, security policy, issue and pull request templates, and `Tools/run_checks.sh` to run
+  every check in one command.
 - The bundled libraries' license files are copied into the app.
 
 ### Fixed
