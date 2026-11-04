@@ -16,6 +16,8 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
 cp "$BIN_DIR/OfflinePhotoFinder" "$APP/Contents/MacOS/OfflinePhotoFinder"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
+mkdir -p "$APP/Contents/Resources"
+cp ../LICENSE ../THIRD_PARTY_NOTICES.md "$APP/Contents/Resources/"
 
 Scripts/bundle-libimobiledevice.sh "$APP"
 

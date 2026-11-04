@@ -63,4 +63,18 @@ if otool -L "$HELPERS"/* "$LIBS"/*.dylib | grep -q "$BREW/"; then
     echo "error: a bundled file still points into $BREW" >&2
     exit 1
 fi
-echo "Bundled ${#TOOLS[@]} libimobiledevice tools and $(ls "$LIBS" | wc -l | tr -d ' ') libraries."
+# The bundled libraries' own license files travel with the app, as the LGPL and Apache licenses
+# require, along with the exact versions used (see THIRD_PARTY_NOTICES.md).
+NOTICES="$APP/Contents/Resources/ThirdPartyLicenses"
+mkdir -p "$NOTICES"
+: > "$NOTICES/VERSIONS.txt"
+for formula in libimobiledevice libimobiledevice-glue libusbmuxd libplist openssl@3; do
+    keg="$BREW/opt/$formula"
+    mkdir -p "$NOTICES/$formula"
+    for file in "$keg"/COPYING* "$keg"/LICENSE* "$keg"/AUTHORS*; do
+        if [ -f "$file" ]; then cp "$file" "$NOTICES/$formula/"; fi
+    done
+    echo "$formula $(basename "$(cd "$keg" && pwd -P)")" >> "$NOTICES/VERSIONS.txt"
+done
+
+echo "Bundled ${#TOOLS[@]} libimobiledevice tools and $(ls "$LIBS" | wc -l | tr -d ' ') libraries, with their licenses."

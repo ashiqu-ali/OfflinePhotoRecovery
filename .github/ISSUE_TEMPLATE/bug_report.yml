@@ -1,0 +1,72 @@
+name: Bug report
+description: Something in the app or the scripts doesn't work as described
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Never attach real backups, photos, databases, names or device
+        identifiers.** If you can, reproduce the problem with the generators in `Tools/`.
+        Anything that could let data leave the Mac is a security issue: follow SECURITY.md instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Connect the iPhone and click Connect iPhone
+        2. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: What were you searching?
+      options:
+        - Fast copy of the Photos folders
+        - Full backup made by the app
+        - Existing Finder or iTunes backup
+        - A script in Tools/
+        - Not applicable
+    validations:
+      required: true
+  - type: dropdown
+    id: encrypted
+    attributes:
+      label: Was the backup encrypted?
+      options:
+        - "Yes"
+        - "No"
+        - Not sure
+        - Not applicable
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: e.g. macOS 15.4
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: iPhone model and iOS version
+      placeholder: e.g. iPhone 12, iOS 18.3 (no serial numbers or device IDs)
+  - type: textarea
+    id: output
+    attributes:
+      label: Error message or output
+      description: Remove any names, file names or paths that identify a person.
+      render: text
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: This report contains no real photos, backups, databases, names or device identifiers.
+          required: true

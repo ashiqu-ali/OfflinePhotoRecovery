@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest something the app or the toolkit should do
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation, for example the kind of data you're trying to find.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where does the data live?
+      description: |
+        If you know: which app or folder, and whether it's in a full backup or the Photos folders.
+        Remember that permanently deleted originals can't be recovered by any tool.
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Ground rules
+      options:
+        - label: This works fully offline and never writes to the iPhone.
+          required: true

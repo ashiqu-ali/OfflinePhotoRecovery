@@ -1,0 +1,5 @@
+# Every change is reviewed by the maintainer. The sandbox entitlements and the bundling script
+# decide what the app can reach, so they always need that review.
+*                                            @ashiqu-ali
+/MacApp/Resources/OfflinePhotoFinder.entitlements  @ashiqu-ali
+/MacApp/Scripts/bundle-libimobiledevice.sh   @ashiqu-ali

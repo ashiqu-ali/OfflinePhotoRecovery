@@ -1,5 +1,8 @@
 # Offline Photo Finder
 
+[![CI](https://github.com/ashiqu-ali/OfflinePhotoRecovery/actions/workflows/ci.yml/badge.svg)](https://github.com/ashiqu-ali/OfflinePhotoRecovery/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A Mac app that finds photos and videos left on an iPhone, entirely offline. It talks to the
 iPhone over the USB cable using the open-source [libimobiledevice](https://libimobiledevice.org)
 tools, which are bundled inside the app. macOS blocks the app from the internet.
@@ -9,6 +12,59 @@ that work on a backup the app (or Finder) has already made: they recover deleted
 pull photos and scans out of deleted notes, unlock password-protected notes when you know or can
 guess the password, find screenshots and videos that survive inside chat and editor apps, and
 gather the leftovers of deleted Camera Roll items. See **[Recovery toolkit](#recovery-toolkit)**.
+
+## Install and run
+
+**You need:** a Mac with macOS 14 or later, Xcode or its command-line tools,
+[Homebrew](https://brew.sh), and the iPhone with its USB cable. Use it only on a device you own.
+
+### 1. Install (one time, needs the internet)
+
+```bash
+xcode-select --install            # skip if Xcode is already installed
+brew install libimobiledevice     # version 1.4.0 or newer
+git clone https://github.com/ashiqu-ali/OfflinePhotoRecovery.git
+cd OfflinePhotoRecovery/MacApp
+./build.sh
+```
+
+`build.sh` creates `MacApp/build/Offline Photo Finder.app`, with libimobiledevice and its license
+files inside, signed on your Mac (no Apple account needed). From here on nothing needs the internet.
+If an older libimobiledevice is installed, run `brew upgrade libimobiledevice` first.
+
+### 2. Open the app
+
+```bash
+open "build/Offline Photo Finder.app"
+```
+
+You can also drag it into **Applications**. The green banner at the top confirms that macOS is
+blocking the app from the internet.
+
+### 3. Find your photos
+
+1. Connect the iPhone with the cable, unlock it, and tap **Trust** if it asks.
+2. Click **Connect iPhone**.
+3. Click **Copy Photos Folders**. This is the fast option; searching starts as soon as the copy finishes.
+4. In the sidebar, open **In Recently Deleted** and **Not in library any more**. These are what
+   survives of deleted photos. Set the size menu to **Any size** to include small thumbnails.
+5. For pictures inside WhatsApp, Messages and other apps, and for the Notes scripts, also run
+   **Back Up Everything**. The iPhone spends a few minutes preparing first. Keep it unlocked, and set
+   **Settings → Display & Brightness → Auto-Lock → Never** until it finishes, because a backup stops
+   if the phone locks.
+6. Select pictures, or none to take everything shown, and click **Export**.
+
+Already have a backup made by Finder or iTunes? Click **Choose Folder…** on the home screen and pick
+it instead. For deleted notes, locked notes and screenshots inside apps, run the scripts in the
+**[Recovery toolkit](#recovery-toolkit)** on a finished backup.
+
+### Try it without an iPhone
+
+Make a sample backup, then open it in the app with **Choose Folder…**:
+
+```bash
+python3 -I ../Tools/make_test_backup.py --out ~/Desktop/sample-backup --unencrypted
+```
 
 ## What it can and can't recover
 
@@ -159,46 +215,6 @@ wherever you choose, in a new folder with one subfolder per source and an `index
 records where each file came from. Exact duplicates are skipped, and original dates are kept. The
 recovery toolkit writes to whatever output folder you pass it.
 
-## Build
-
-One time, while online:
-
-```bash
-brew install libimobiledevice
-```
-
-Then, offline is fine:
-
-```bash
-cd MacApp && ./build.sh
-```
-
-That produces `MacApp/build/Offline Photo Finder.app`, with libimobiledevice copied inside it
-and signed locally. No Apple account is needed.
-
-> A full backup (needed for chat-app pictures and for the Notes recovery toolkit) requires
-> **libimobiledevice 1.4.0 or newer** for its `afcclient`/`idevicebackup2`. Install with
-> `brew upgrade libimobiledevice` if an older copy is present.
-
-## Use
-
-### The app
-
-1. Connect the iPhone with a cable, unlock it and tap **Trust** if asked.
-2. Open the app and click **Connect iPhone**.
-3. Click **Copy Photos Folders** (fast). Searching starts automatically when the copy finishes.
-4. For pictures inside chat apps, also run **Back Up Everything**. On a full iPhone, expect
-   several minutes of "preparing" before files arrive. Keep the iPhone **unlocked** and set
-   **Settings → Display & Brightness → Auto-Lock → Never** for the duration — a backup aborts if
-   the phone locks, and iOS asks for the passcode on screen when the backup starts.
-5. Select pictures, or none to take everything shown, and click **Export**.
-
-### The recovery toolkit
-
-Point the scripts at a finished backup folder as shown under **[Recovery toolkit](#recovery-toolkit)**.
-Deleted-note text and the photos inside deleted notes, screenshots saved in chat apps, and locked
-notes you have the password for all come out this way; the app itself does not yet read Notes.
-
 ## Project layout
 
 ```
@@ -209,8 +225,10 @@ MacApp/
   Scripts/bundle-libimobiledevice.sh   copies libimobiledevice into the app
   Resources/                   Info.plist and the sandbox entitlements
 Tools/
+  run_checks.sh                runs every automated check (used by CI)
   make_test_backup.py          builds a fake encrypted or unencrypted iPhone backup
   make_test_photo_copy.py      builds a fake Photos-folders copy with deleted photos
+  verify_export.py, check_labels.py   assertions used by run_checks.sh
   recovery/                    read-only recovery scripts for a finished backup
     notes_search.py              deleted Apple Notes + their photos/scans/drawings
     unlock_notes.py              unlock password-protected notes (interactive)
@@ -221,14 +239,15 @@ Tools/
     export_app_videos.py         full videos saved inside editor/Files apps
 notes/
   ARCHITECTURE_REVIEW.md       senior-architect review: algorithms, findings, roadmap
+.github/                       CI, issue and pull request templates, code owners
+CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, CHANGELOG.md
+LICENSE, THIRD_PARTY_NOTICES.md
 ```
 
-Run the checks:
+Run every check, the same ones CI runs (no iPhone needed):
 
 ```bash
-cd MacApp && swift build && .build/debug/photofinder-selftest vectors
-python3 ../Tools/make_test_backup.py --out /tmp/tb --password test123
-PF_PASSWORD=test123 .build/debug/photofinder-selftest scan /tmp/tb --export /tmp/out
+Tools/run_checks.sh
 ```
 
 ## Use it only on your own devices
@@ -236,3 +255,17 @@ PF_PASSWORD=test123 .build/debug/photofinder-selftest scan /tmp/tb --export /tmp
 This project recovers personal data — photos, private notes, locked notes, chat media. Use it only
 on a device you own, or one whose owner has asked you to, and handle what comes out accordingly.
 The toolkit's design enforces nothing here; you do.
+
+## Contributing
+
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first: it covers the ground
+rules (offline only, never write to the iPhone, honest about what can be recovered, no real
+personal data anywhere), setup, and `Tools/run_checks.sh`. Everyone follows the
+[Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately as described in
+[SECURITY.md](SECURITY.md). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
+
+## License
+
+[MIT](LICENSE). The app bundles libimobiledevice, libimobiledevice-glue, libusbmuxd, libplist
+(LGPL-2.1) and OpenSSL (Apache-2.0), each under its own license; see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The build copies their license files into the app.

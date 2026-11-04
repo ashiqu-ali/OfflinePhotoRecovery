@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Keeps the CI workflow's actions up to date. The app itself has no package dependencies.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
