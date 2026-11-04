@@ -34,7 +34,12 @@ struct ChooseBackupView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .keyboardShortcut(.defaultAction)
-                .disabled(model.chosen == nil || (model.chosen?.isEncrypted == true && model.password.isEmpty))
+                .disabled(model.chosen == nil || model.chosen?.isComplete == false
+                          || (model.chosen?.isEncrypted == true && model.password.isEmpty))
+            }
+            if model.chosen?.isComplete == false {
+                Label("This backup is still being written. Wait for it to finish, then search.", systemImage: "clock")
+                    .foregroundStyle(.orange)
             }
         }
         .padding(32)

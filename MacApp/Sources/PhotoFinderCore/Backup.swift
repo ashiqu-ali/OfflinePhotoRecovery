@@ -7,6 +7,7 @@ public enum BackupError: Error, LocalizedError {
     case wrongPassword
     case missingClassKey(UInt32)
     case accessDenied(String)
+    case incompleteBackup
     case unreadable(String)
     case cancelled
 
@@ -14,6 +15,8 @@ public enum BackupError: Error, LocalizedError {
         switch self {
         case .passwordRequired:
             return "This backup is encrypted. Enter its password."
+        case .incompleteBackup:
+            return "This backup hasn't finished yet. Let the backup complete (it opens on its own when done), then search it. If it was interrupted, back up again."
         case .wrongPassword:
             return "That password doesn't unlock this backup. Use the backup password (the one set with “Encrypt local backup”), not your iPhone passcode or Apple ID password."
         case .missingClassKey(let cls):
@@ -39,6 +42,9 @@ public struct BackupSummary: Identifiable, Hashable, Sendable {
     public let isEncrypted: Bool
     /// A direct copy of the iPhone's photo folders (made over USB with AFC), not an iOS backup.
     public var isPhotoFolderCopy = false
+    /// False while a backup is still being written (Status.plist not yet "finished"). Reading its
+    /// Manifest.db then gives a half-written file, so the app waits instead of showing a cryptic error.
+    public var isComplete = true
 }
 
 public enum BackupLocator {
@@ -82,6 +88,9 @@ public enum BackupLocator {
               FileManager.default.fileExists(atPath: url.appendingPathComponent("Manifest.db").path) else { return nil }
         let info = readPlist(url.appendingPathComponent("Info.plist")) ?? [:]
         let lockdown = manifest["Lockdown"] as? [String: Any] ?? [:]
+        // A backup still being written reports SnapshotState other than "finished" in Status.plist.
+        let status = readPlist(url.appendingPathComponent("Status.plist")) ?? [:]
+        let complete = (status["SnapshotState"] as? String).map { $0 == "finished" } ?? true
         return BackupSummary(
             url: url,
             deviceName: info["Device Name"] as? String ?? info["Display Name"] as? String
@@ -89,7 +98,8 @@ public enum BackupLocator {
             productType: info["Product Type"] as? String ?? lockdown["ProductType"] as? String,
             iosVersion: info["Product Version"] as? String ?? lockdown["ProductVersion"] as? String,
             lastBackup: info["Last Backup Date"] as? Date ?? manifest["Date"] as? Date,
-            isEncrypted: manifest["IsEncrypted"] as? Bool ?? false)
+            isEncrypted: manifest["IsEncrypted"] as? Bool ?? false,
+            isComplete: complete)
     }
 
     static func readPlist(_ url: URL) -> [String: Any]? {
@@ -159,6 +169,7 @@ public final class BackupReader: @unchecked Sendable {
             manifestKey = nil
             return
         }
+        guard summary.isComplete else { throw BackupError.incompleteBackup }
         guard let manifest = BackupLocator.readPlist(summary.url.appendingPathComponent("Manifest.plist")) else {
             throw BackupError.unreadable("Couldn't read Manifest.plist in “\(summary.url.lastPathComponent)”.")
         }
@@ -280,9 +291,15 @@ final class ManifestDatabase {
     private var db: OpaquePointer?
 
     init(path: String) throws {
-        guard sqlite3_open_v2(path, &db, SQLITE_OPEN_READONLY, nil) == SQLITE_OK else {
+        // iOS writes Manifest.db in WAL journal mode. Opening that read-only the plain way needs the
+        // -wal/-shm sidecars (which a backup doesn't ship) and a writable directory; immutable=1 tells
+        // SQLite the file won't change, so it reads the committed data straight from the main file.
+        let encoded = path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path
+        let uri = "file:\(encoded)?immutable=1"
+        guard sqlite3_open_v2(uri, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, nil) == SQLITE_OK else {
+            let message = db.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown error"
             sqlite3_close(db)
-            throw BackupError.unreadable("Manifest.db couldn't be opened.")
+            throw BackupError.unreadable("Manifest.db couldn't be opened (\(message)).")
         }
     }
 
@@ -310,7 +327,7 @@ final class ManifestDatabase {
     private func prepare(_ sql: String) throws -> OpaquePointer? {
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
-            throw BackupError.unreadable("Manifest.db has an unexpected format.")
+            throw BackupError.unreadable("Couldn't read this backup's file list. The backup may be incomplete or damaged — back up again.")
         }
         return stmt
     }

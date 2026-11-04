@@ -82,6 +82,23 @@ def convert(png_bytes, fmt, work, max_size=None):
         return f.read()
 
 
+def make_photos_sqlite(work, assets):
+    """A minimal Photos.sqlite ZASSET table; assets is a list of (directory, filename, trashed_state)."""
+    path = os.path.join(work, "Photos.sqlite")
+    if os.path.exists(path):
+        os.remove(path)
+    db = sqlite3.connect(path)
+    db.execute("CREATE TABLE ZASSET (Z_PK INTEGER PRIMARY KEY, ZDIRECTORY VARCHAR, ZFILENAME VARCHAR, "
+               "ZTRASHEDSTATE INTEGER, ZUUID VARCHAR, ZCLOUDASSETGUID VARCHAR)")
+    for i, (directory, filename, trashed) in enumerate(assets):
+        db.execute("INSERT INTO ZASSET (ZDIRECTORY, ZFILENAME, ZTRASHEDSTATE, ZUUID) VALUES (?, ?, ?, ?)",
+                   (directory, filename, trashed, f"UUID-{i:04d}"))
+    db.commit()
+    db.close()
+    with open(path, "rb") as f:
+        return f.read()
+
+
 def make_video(work):
     if shutil.which("ffmpeg"):
         dst = os.path.join(work, "clip.mp4")
@@ -138,6 +155,14 @@ def main():
     heic = convert(png(400, 300, (200, 40, 40)), "heic", work)
     jpeg = convert(png(400, 300, (40, 60, 200)), "jpeg", work)
     thumb = convert(png(400, 300, (40, 180, 60)), "jpeg", work, max_size=256)
+    thumb_deleted = convert(png(400, 300, (10, 10, 200)), "jpeg", work, max_size=256)
+    thumb_gone = convert(png(400, 300, (200, 10, 90)), "jpeg", work, max_size=256)
+    # A minimal Photos library listing some photos as present and one as in Recently Deleted.
+    photos_db = make_photos_sqlite(work, [
+        ("DCIM/100APPLE", "IMG_0001.HEIC", 0),   # in the library
+        ("DCIM/100APPLE", "IMG_0002.JPG", 0),    # in the library
+        ("DCIM/100APPLE", "IMG_0003.JPG", 1),    # in Recently Deleted (thumbnail below)
+    ])
     sms = convert(png(300, 400, (230, 120, 20)), "jpeg", work)
     whatsapp = convert(png(320, 320, (140, 40, 180)), "jpeg", work)
     telegram_png = png(200, 200, (220, 200, 20))
@@ -146,9 +171,11 @@ def main():
 
     wa = "AppDomainGroup-group.net.whatsapp.WhatsApp.shared"
     files = [  # (domain, path, content, protection class, is media, write to disk)
+        ("CameraRollDomain", "Media/PhotoData/Photos.sqlite", photos_db, 3, False, True),
         ("CameraRollDomain", "Media/DCIM/100APPLE/IMG_0001.HEIC", heic, 3, True, True),
         ("CameraRollDomain", "Media/DCIM/100APPLE/IMG_0002.JPG", jpeg, 3, True, True),
-        ("CameraRollDomain", "Media/PhotoData/Thumbnails/V2/DCIM/100APPLE/IMG_0003.JPG/5005.JPG", thumb, 3, True, True),
+        ("CameraRollDomain", "Media/PhotoData/Thumbnails/V2/DCIM/100APPLE/IMG_0003.JPG/5005.JPG", thumb_deleted, 3, True, True),
+        ("CameraRollDomain", "Media/PhotoData/Thumbnails/V2/DCIM/101APPLE/IMG_7777.HEIC/5005.JPG", thumb_gone, 3, True, True),
         ("MediaDomain", "Library/SMS/Attachments/4a/10/8F0C1D2E-AAAA-BBBB-CCCC-1234567890AB/IMG_5521.jpeg", sms, 4, True, True),
         (wa, "Message/Media/919876543210@s.whatsapp.net/1/a/1a2b3c4d.jpg", whatsapp, 3, True, True),
         (wa, "Message/Media/919876543210@s.whatsapp.net/2/b/copy-of-0002.jpg", jpeg, 3, True, True),
@@ -163,6 +190,8 @@ def main():
 
     db_path = os.path.join(work, "Manifest.db")
     db = sqlite3.connect(db_path)
+    # Real iOS backups store Manifest.db in WAL journal mode; reproduce that so the reader is tested against it.
+    db.execute("PRAGMA journal_mode=WAL")
     db.execute("CREATE TABLE Files (fileID TEXT PRIMARY KEY, domain TEXT, relativePath TEXT, flags INTEGER, file BLOB)")
     db.execute("CREATE TABLE Properties (key TEXT PRIMARY KEY, value BLOB)")
     base_time = int(datetime.datetime(2026, 9, 1, 12, 0).timestamp())
@@ -185,7 +214,17 @@ def main():
     db.execute("INSERT INTO Files VALUES (?, 'CameraRollDomain', 'Media/DCIM/100APPLE', 2, ?)",
                (dir_id, mbfile_blob("Media/DCIM/100APPLE", 0, 0, None, base_time)))
     db.commit()
+    # Checkpoint and drop WAL so the folder holds only Manifest.db (header still marks it WAL), as iOS ships it.
+    db.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    db.execute("PRAGMA journal_mode=DELETE")
+    db.execute("PRAGMA journal_mode=WAL")
+    db.commit()
     db.close()
+    for sidecar in ("-wal", "-shm"):
+        try:
+            os.remove(db_path + sidecar)
+        except FileNotFoundError:
+            pass
 
     with open(db_path, "rb") as f:
         manifest_db = f.read()

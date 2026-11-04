@@ -21,6 +21,7 @@ that's what this project finds:
 |---|---|
 | Photos app thumbnails, edited versions, iCloud photo cache, shared albums | **Fast copy** of the Photos folders over USB (about 30 MB/s). Each picture is checked against the iPhone's Photos database and iCloud Photos' sync database. It is labelled **Not in library any more** only when there is evidence: a thumbnail or edit whose photo name appears nowhere in the library, or an iCloud cache file whose original iCloud Photos recorded as deleted. Cache files that can't be linked either way get no label. |
 | Pictures inside WhatsApp, Telegram, Signal, Messages, Instagram and other apps | **Full backup** over USB (the iPhone spends a few minutes preparing first). |
+| Items still in **Recently Deleted**, and leftovers of deleted Camera Roll photos | A **full backup or an existing backup** is now compared against the `Photos.sqlite` inside it, so its photos, thumbnails and edits are labelled **In Recently Deleted**, **Not in library any more**, or in-library — the same comparison the fast copy does. Nothing is labelled "deleted" without that evidence. |
 | Older backups made by Finder or iTunes | **Open an existing backup** (encrypted backups need their backup password). |
 | Deleted Apple Notes and the photos/scans/drawings inside them | **Recovery toolkit** reads the Notes database in a full backup (`notes_search.py`). |
 | Password-protected ("locked") notes | **Recovery toolkit** derives the key from the password (`unlock_notes.py`), or searches for a forgotten one (`recover_notes_password.py`). |
