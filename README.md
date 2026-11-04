@@ -2,6 +2,12 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+<p align="center">
+  <a href="https://www.buymeacoffee.com/ashiqu.ali">
+    <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=ashiqu.ali&button_colour=FFDD00&font_colour=000000&font_family=Lato&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee"/>
+  </a>
+</p>
+
 A Mac app that finds photos and videos left on an iPhone, entirely offline. It talks to the
 iPhone over the USB cable using the open-source [libimobiledevice](https://libimobiledevice.org)
 tools, which are bundled inside the app. macOS blocks the app from the internet.
@@ -271,11 +277,5 @@ personal data anywhere), setup, and `Tools/run_checks.sh`. Everyone follows the
 
 ## Support
 
-If this saved your photos and you'd like to say thanks, you can buy me a coffee. It's optional and
-always will be — the project is free and open source.
-
-<p align="center">
-  <a href="https://www.buymeacoffee.com/ashiqu.ali">
-    <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=ashiqu.ali&button_colour=FFDD00&font_colour=000000&font_family=Lato&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee"/>
-  </a>
-</p>
+This project is free and open source. If it saved your photos and you'd like to say thanks, you can
+[buy me a coffee](https://www.buymeacoffee.com/ashiqu.ali) — always optional.
