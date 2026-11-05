@@ -180,6 +180,26 @@ physically connected, unlocked with its passcode, and set to **Trust** this Mac.
 or over-the-air path, and no way around the passcode. In practice that means your own devices, a
 device whose owner unlocks it for you, or a backup file you were given — which is the point.
 
+## Why this exists
+
+This started with a friend's old iPhone. They had lost years of photos they thought were gone
+for good. Working through the device together, we got almost all of them back — and a lot more
+besides: forgotten screenshots, videos buried inside other apps, and odd leftovers no one
+expected were still there. A few photos were genuinely unrecoverable, and this README is honest
+about why (see **[The hard limits](#the-hard-limits)**).
+
+Two things stuck from that:
+
+- **Recovery means seeing everything.** When you pull deleted data off someone's phone, you see
+  *all* of it, not just the photos that were asked for. That is deeply personal, and it should
+  never have to pass through a stranger's servers or a recovery company's cloud to get it back.
+- **The honest answer matters.** Some things really are gone, and no tool can change that. A
+  recovery tool that promises otherwise is misleading people at their most vulnerable.
+
+So this app is built the opposite way to most recovery software: it runs entirely on your own
+Mac, talks only to a phone on the USB cable, and is blocked from the internet by macOS itself.
+You recover your own photos, on your own machine, and nothing leaves it.
+
 ## Why nothing is exposed
 
 - **Internet blocked by macOS.** The app is signed with the App Sandbox and *no* network
