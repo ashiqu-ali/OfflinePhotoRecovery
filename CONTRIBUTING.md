@@ -3,6 +3,16 @@
 Thanks for helping. Bug reports, fixes, tests, documentation and support for more iOS versions
 are all welcome. Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
+## New here? Start with a good first issue
+
+Pick an issue labelled [`good first issue`][gfi] or [`help wanted`][hw] — they're small, scoped,
+and each one says exactly what to do. Comment on the issue to claim it before you start, and ask
+anything you're unsure about; questions are welcome. You **don't need an iPhone** to contribute:
+`Tools/run_checks.sh` builds the project and runs the whole test suite against generated data.
+
+[gfi]: https://github.com/ashiqu-ali/OfflinePhotoRecovery/labels/good%20first%20issue
+[hw]: https://github.com/ashiqu-ali/OfflinePhotoRecovery/labels/help%20wanted
+
 ## Ground rules
 
 These protect the people who use this app on their most private data. Pull requests that
